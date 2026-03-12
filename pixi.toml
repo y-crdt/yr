@@ -28,6 +28,8 @@ RUSTFLAGS = "-C link-arg=-rpath -C link-arg=$CONDA_PREFIX/lib/"
 description = "Compile Rust code into a library"
 cmd = "cargo build --manifest-path=rust/Cargo.toml --lib "
 cwd = "src"
+# Set target dir so that it does not conflict with the one from R
+env = { CARGO_TARGET_DIR = "$PIXI_PROJECT_ROOT/target/build-lib" }
 inputs = ["src/rust/src/**/*.rs", "src/rust/Cargo.*"]
 outputs = ["src/rust/target/**/*"]
 

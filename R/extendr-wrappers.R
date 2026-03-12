@@ -14,16 +14,46 @@ NULL
 #' @useDynLib yar, .registration = TRUE
 NULL
 
-ArDoc <- new.env(parent = emptyenv())
+Transaction <- new.env(parent = emptyenv())
 
-ArDoc$new <- function() .Call(wrap__ArDoc__new)
+Transaction$new <- function(doc) .Call(wrap__Transaction__new, doc)
 
-ArDoc$client_id <- function() .Call(wrap__ArDoc__client_id, self)
+Transaction$commit <- function() .Call(wrap__Transaction__commit, self)
+
+Transaction$drop <- function() invisible(.Call(wrap__Transaction__drop, self))
 
 #' @export
-`$.ArDoc` <- function (self, name) { func <- ArDoc[[name]]; environment(func) <- environment(); func }
+`$.Transaction` <- function (self, name) { func <- Transaction[[name]]; environment(func) <- environment(); func }
 
 #' @export
-`[[.ArDoc` <- `$.ArDoc`
+`[[.Transaction` <- `$.Transaction`
+
+TextRef <- new.env(parent = emptyenv())
+
+TextRef$insert <- function(transaction, index, chunk) invisible(.Call(wrap__TextRef__insert, self, transaction, index, chunk))
+
+TextRef$get_string <- function(transaction) .Call(wrap__TextRef__get_string, self, transaction)
+
+#' @export
+`$.TextRef` <- function (self, name) { func <- TextRef[[name]]; environment(func) <- environment(); func }
+
+#' @export
+`[[.TextRef` <- `$.TextRef`
+
+Doc <- new.env(parent = emptyenv())
+
+Doc$new <- function() .Call(wrap__Doc__new)
+
+Doc$client_id <- function() .Call(wrap__Doc__client_id, self)
+
+Doc$guid <- function() .Call(wrap__Doc__guid, self)
+
+Doc$get_or_insert_text <- function(name) .Call(wrap__Doc__get_or_insert_text, self, name)
+
+#' @export
+`$.Doc` <- function (self, name) { func <- Doc[[name]]; environment(func) <- environment(); func }
+
+#' @export
+`[[.Doc` <- `$.Doc`
 
 # nolint end

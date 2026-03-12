@@ -1,13 +1,51 @@
-test_that("ArDoc can be created", {
-  doc <- ArDoc$new()
-  expect_true(inherits(doc, "ArDoc"))
+test_that("Doc can be created", {
+  doc <- Doc$new()
+  expect_true(inherits(doc, "Doc"))
 })
 
-test_that("ArDoc has a positive client_id", {
-  doc <- ArDoc$new()
+test_that("Doc has a positive client_id", {
+  doc <- Doc$new()
   expect_true(doc$client_id() > 0)
 })
 
-test_that("two ArDocs have different client_ids", {
-  expect_false(ArDoc$new()$client_id() == ArDoc$new()$client_id())
+test_that("two Docs have different client_ids", {
+  expect_false(Doc$new()$client_id() == Doc$new()$client_id())
+})
+
+test_that("Doc has a non-empty guid", {
+  doc <- Doc$new()
+  expect_true(nchar(doc$guid()) > 0)
+})
+
+test_that("two Docs have different guids", {
+  expect_false(Doc$new()$guid() == Doc$new()$guid())
+})
+
+test_that("Transaction$new returns a Transaction", {
+  doc <- Doc$new()
+  trans <- Transaction$new(doc)
+  expect_true(inherits(trans, "Transaction"))
+})
+
+test_that("Text insert and get_string works", {
+  doc <- Doc$new()
+  text <- doc$get_or_insert_text("article")
+
+  trans <- Transaction$new(doc)
+  text$insert(trans, 0L, "hello")
+  text$insert(trans, 5L, " world")
+  trans$commit()
+
+  expect_equal(text$get_string(trans), "hello world")
+  trans$drop()
+})
+
+test_that("get_string errors after Transaction drop", {
+  doc <- Doc$new()
+  text <- doc$get_or_insert_text("article")
+  trans <- Transaction$new(doc)
+  trans$drop()
+
+  expect_s3_class(trans$commit(), "extendr_error")
+  expect_s3_class(text$get_string(trans), "extendr_error")
 })
