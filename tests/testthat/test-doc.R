@@ -32,13 +32,13 @@ test_that("Text insert and retrieve get_string", {
   text <- doc$get_or_insert_text("article")
 
   trans <- Transaction$new(doc, mutable = TRUE)
+  on.exit(trans$drop())
   text$insert(trans, 0L, "hello")
   text$insert(trans, 5L, " world")
   trans$commit()
 
   expect_equal(text$get_string(trans), "hello world")
   expect_equal(text$len(trans), 11L)
-  trans$drop()
 })
 
 test_that("Text push appends to the end", {
@@ -46,11 +46,11 @@ test_that("Text push appends to the end", {
   text <- doc$get_or_insert_text("article")
 
   trans <- Transaction$new(doc, mutable = TRUE)
+  on.exit(trans$drop())
   text$push(trans, "hello")
   text$push(trans, " world")
 
   expect_equal(text$get_string(trans), "hello world")
-  trans$drop()
 })
 
 test_that("Text remove_range removes characters", {
@@ -58,11 +58,11 @@ test_that("Text remove_range removes characters", {
   text <- doc$get_or_insert_text("article")
 
   trans <- Transaction$new(doc, mutable = TRUE)
+  on.exit(trans$drop())
   text$push(trans, "hello world")
   text$remove_range(trans, 5L, 6L)
 
   expect_equal(text$get_string(trans), "hello")
-  trans$drop()
 })
 
 test_that("Multiple readonly transaction does not deadlock", {
@@ -88,9 +88,9 @@ test_that("Errors when using Transaction after drop", {
 test_that("Transaction state_vector of empty doc is empty", {
   doc <- Doc$new()
   trans <- Transaction$new(doc)
+  on.exit(trans$drop())
   sv <- trans$state_vector()
   expect_true(sv$is_empty())
-  trans$drop()
 })
 
 test_that("Update$new creates an empty Update", {
@@ -118,13 +118,13 @@ for (version in c("v1", "v2")) {
       text <- doc$get_or_insert_text("article")
 
       trans <- Transaction$new(doc, mutable = TRUE)
+      on.exit(trans$drop())
       text$insert(trans, 0L, "hello")
       trans$commit()
 
       sv <- trans$state_vector()
       diff <- trans[[paste0("encode_diff_", version)]](sv)
       expect_true(is.raw(diff))
-      trans$drop()
     })
   }, list(version = version))
 }
@@ -150,8 +150,8 @@ for (version in c("v1", "v2")) {
     test_that(paste("apply_update", version, "errors on invalid data"), {
       doc <- Doc$new()
       trans <- Transaction$new(doc, mutable = TRUE)
+      on.exit(trans$drop())
       expect_s3_class(trans[[paste0("apply_update_", version)]](as.raw(c(0xff))), "extendr_error")
-      trans$drop()
     })
   }, list(version = version))
 }
@@ -161,12 +161,12 @@ test_that("Map insert_text and contains_key", {
   map <- doc$get_or_insert_map("data")
 
   trans <- Transaction$new(doc, mutable = TRUE)
+  on.exit(trans$drop())
   map$insert_text(trans, "key")
 
   expect_equal(map$len(trans), 1L)
   expect_true(map$contains_key(trans, "key"))
   expect_false(map$contains_key(trans, "other"))
-  trans$drop()
 })
 
 test_that("Map remove decreases len", {
@@ -174,13 +174,13 @@ test_that("Map remove decreases len", {
   map <- doc$get_or_insert_map("data")
 
   trans <- Transaction$new(doc, mutable = TRUE)
+  on.exit(trans$drop())
   map$insert_text(trans, "a")
   map$insert_text(trans, "b")
   map$remove(trans, "a")
 
   expect_equal(map$len(trans), 1L)
   expect_false(map$contains_key(trans, "a"))
-  trans$drop()
 })
 
 test_that("Map clear removes all entries", {
@@ -188,18 +188,19 @@ test_that("Map clear removes all entries", {
   map <- doc$get_or_insert_map("data")
 
   trans <- Transaction$new(doc, mutable = TRUE)
+  on.exit(trans$drop())
   map$insert_text(trans, "a")
   map$insert_text(trans, "b")
   map$clear(trans)
 
   expect_equal(map$len(trans), 0L)
-  trans$drop()
 })
 
 test_that("Map insert methods return usable nested types", {
   doc <- Doc$new()
   map <- doc$get_or_insert_map("data")
   trans <- Transaction$new(doc, mutable = TRUE)
+  on.exit(trans$drop())
 
   map$insert_any(trans, "scalar", "hello")
 
@@ -220,13 +221,13 @@ test_that("Map insert methods return usable nested types", {
   expect_equal(nested$len(trans), 1L)
 
   expect_equal(map$len(trans), 4L)
-  trans$drop()
 })
 
 test_that("ArrayRef insert methods return usable nested types", {
   doc <- Doc$new()
   map <- doc$get_or_insert_map("data")
   trans <- Transaction$new(doc, mutable = TRUE)
+  on.exit(trans$drop())
   arr <- map$insert_array(trans, "root")
   expect_true(inherits(arr, "ArrayRef"))
 
@@ -249,7 +250,6 @@ test_that("ArrayRef insert methods return usable nested types", {
   expect_equal(nested_map$len(trans), 1L)
 
   expect_equal(arr$len(trans), 4L)
-  trans$drop()
 })
 
 #####################
