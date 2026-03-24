@@ -42,6 +42,28 @@ impl IntoExtendr<Robj> for yrs::Any {
     }
 }
 
+impl IntoExtendr<Robj> for yrs::Out {
+    fn extendr(self) -> extendr_api::Result<Robj> {
+        match self {
+            yrs::Out::Any(v) => v.extendr(),
+            yrs::Out::YText(v) => Ok(crate::TextRef::from(v).into()),
+            yrs::Out::YArray(v) => Ok(crate::ArrayRef::from(v).into()),
+            yrs::Out::YMap(v) => Ok(crate::MapRef::from(v).into()),
+            yrs::Out::YDoc(v) => Ok(crate::Doc::from(v).into()),
+            yrs::Out::YXmlElement(_) => {
+                Err(Error::Other("YXmlElement is not yet supported".to_string()))
+            }
+            yrs::Out::YXmlFragment(_) => Err(Error::Other(
+                "YXmlFragment is not yet supported".to_string(),
+            )),
+            yrs::Out::YXmlText(_) => Err(Error::Other("YXmlText is not yet supported".to_string())),
+            yrs::Out::UndefinedRef(_) => {
+                Err(Error::Other("UndefinedRef is not supported".to_string()))
+            }
+        }
+    }
+}
+
 pub(crate) trait FromExtendr<T>: Sized {
     fn from_extendr(value: T) -> extendr_api::Result<Self>;
 }
@@ -94,7 +116,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_null_extendr() {
+    fn test_to_any_null() {
         extendr_api::test! {
             assert_eq!(yrs::Any::Null.extendr().unwrap(), r!(NULL));
             assert_eq!(yrs::Any::Undefined.extendr().unwrap(), r!(NULL));
@@ -102,7 +124,7 @@ mod tests {
     }
 
     #[test]
-    fn test_bool_extendr() {
+    fn test_to_any_bool() {
         extendr_api::test! {
             assert_eq!(yrs::Any::Bool(true).extendr().unwrap(), r!(true));
             assert_eq!(yrs::Any::Bool(false).extendr().unwrap(), r!(false));
@@ -110,14 +132,14 @@ mod tests {
     }
 
     #[test]
-    fn test_number_extendr() {
+    fn test_to_any_number() {
         extendr_api::test! {
             assert_eq!(yrs::Any::Number(1.5).extendr().unwrap(), r!(1.5));
         }
     }
 
     #[test]
-    fn test_bigint_extendr() {
+    fn test_to_any_bigint() {
         extendr_api::test! {
             assert_eq!(yrs::Any::BigInt(42).extendr().unwrap(), r!(42i32));
             assert!(yrs::Any::BigInt(i64::MAX).extendr().is_err());
@@ -125,7 +147,7 @@ mod tests {
     }
 
     #[test]
-    fn test_string_extendr() {
+    fn test_to_any_string() {
         extendr_api::test! {
             let s: Arc<str> = Arc::from("hello");
             assert_eq!(yrs::Any::String(s).extendr().unwrap(), r!("hello"));
@@ -133,7 +155,7 @@ mod tests {
     }
 
     #[test]
-    fn test_buffer_extendr() {
+    fn test_to_any_buffer() {
         extendr_api::test! {
             let buf: Arc<[u8]> = Arc::from([1u8, 2, 3].as_slice());
             let robj = yrs::Any::Buffer(buf).extendr().unwrap();
@@ -143,7 +165,7 @@ mod tests {
     }
 
     #[test]
-    fn test_array_extendr() {
+    fn test_to_any_array() {
         extendr_api::test! {
             let arr: Arc<[yrs::Any]> = Arc::from([yrs::Any::Bool(true), yrs::Any::Number(1.0)].as_slice());
             let robj = yrs::Any::Array(arr).extendr().unwrap();
@@ -153,7 +175,7 @@ mod tests {
     }
 
     #[test]
-    fn test_map_extendr() {
+    fn test_to_any_map() {
         extendr_api::test! {
             let map: Arc<HashMap<String, yrs::Any>> =
                 Arc::new(HashMap::from([("x".to_string(), yrs::Any::Number(1.0))]));
@@ -164,14 +186,61 @@ mod tests {
     }
 
     #[test]
-    fn test_null_from_extendr() {
+    fn test_to_out_any() {
+        extendr_api::test! {
+            assert_eq!(yrs::Out::Any(yrs::Any::Null).extendr().unwrap(), r!(NULL));
+            assert_eq!(yrs::Out::Any(yrs::Any::Number(1.5)).extendr().unwrap(), r!(1.5));
+        }
+    }
+
+    #[test]
+    fn test_to_out_ytext() {
+        extendr_api::test! {
+            let doc = yrs::Doc::new();
+            let text_ref = doc.get_or_insert_text("test");
+            let robj = yrs::Out::YText(text_ref).extendr().unwrap();
+            assert!(robj.is_external_pointer());
+        }
+    }
+
+    #[test]
+    fn test_to_out_yarray() {
+        extendr_api::test! {
+            let doc = yrs::Doc::new();
+            let array_ref = doc.get_or_insert_array("test");
+            let robj = yrs::Out::YArray(array_ref).extendr().unwrap();
+            assert!(robj.is_external_pointer());
+        }
+    }
+
+    #[test]
+    fn test_to_out_ymap() {
+        extendr_api::test! {
+            let doc = yrs::Doc::new();
+            let map_ref = doc.get_or_insert_map("test");
+            let robj = yrs::Out::YMap(map_ref).extendr().unwrap();
+            assert!(robj.is_external_pointer());
+        }
+    }
+
+    #[test]
+    fn test_to_out_ydoc() {
+        extendr_api::test! {
+            let subdoc = yrs::Doc::new();
+            let robj = yrs::Out::YDoc(subdoc).extendr().unwrap();
+            assert!(robj.is_external_pointer());
+        }
+    }
+
+    #[test]
+    fn test_from_any_null() {
         extendr_api::test! {
             assert!(matches!(yrs::Any::from_extendr(r!(NULL)).unwrap(), yrs::Any::Null));
         }
     }
 
     #[test]
-    fn test_bool_from_extendr() {
+    fn test_from_any_bool() {
         extendr_api::test! {
             assert!(matches!(yrs::Any::from_extendr(r!(true)).unwrap(), yrs::Any::Bool(true)));
             assert!(matches!(yrs::Any::from_extendr(r!(false)).unwrap(), yrs::Any::Bool(false)));
@@ -179,28 +248,28 @@ mod tests {
     }
 
     #[test]
-    fn test_integer_from_extendr() {
+    fn test_from_any_integer() {
         extendr_api::test! {
             assert!(matches!(yrs::Any::from_extendr(r!(42i32)).unwrap(), yrs::Any::BigInt(42)));
         }
     }
 
     #[test]
-    fn test_number_from_extendr() {
+    fn test_from_any_number() {
         extendr_api::test! {
             assert!(matches!(yrs::Any::from_extendr(r!(1.5)).unwrap(), yrs::Any::Number(v) if v == 1.5));
         }
     }
 
     #[test]
-    fn test_string_from_extendr() {
+    fn test_from_any_string() {
         extendr_api::test! {
             assert!(matches!(yrs::Any::from_extendr(r!("hello")).unwrap(), yrs::Any::String(ref s) if s.as_ref() == "hello"));
         }
     }
 
     #[test]
-    fn test_buffer_from_extendr() {
+    fn test_from_any_buffer() {
         extendr_api::test! {
             let robj: Robj = Raw::from_bytes(&[1, 2, 3]).into();
             assert!(matches!(yrs::Any::from_extendr(robj).unwrap(), yrs::Any::Buffer(ref b) if b.len() == 3));
@@ -208,7 +277,7 @@ mod tests {
     }
 
     #[test]
-    fn test_array_from_extendr() {
+    fn test_from_any_array() {
         extendr_api::test! {
             let robj: Robj = List::from_values([r!(true), r!(1.5)]).into();
             assert!(matches!(yrs::Any::from_extendr(robj).unwrap(), yrs::Any::Array(ref a) if a.len() == 2));
@@ -216,7 +285,7 @@ mod tests {
     }
 
     #[test]
-    fn test_map_from_extendr() {
+    fn test_from_any_map() {
         extendr_api::test! {
             let robj: Robj = List::from_names_and_values(["x"], [r!(1.5)]).unwrap().into();
             assert!(matches!(yrs::Any::from_extendr(robj).unwrap(), yrs::Any::Map(ref m) if m.len() == 1));
