@@ -5,6 +5,30 @@
 #' @useDynLib yar, .registration = TRUE
 NULL
 
+Transaction <- new.env(parent = emptyenv())
+
+Transaction$new <- function(doc, mutable = FALSE) .Call(wrap__Transaction__new, doc, mutable)
+
+Transaction$commit <- function() .Call(wrap__Transaction__commit, self)
+
+Transaction$drop <- function() .Call(wrap__Transaction__drop, self)
+
+Transaction$state_vector <- function() .Call(wrap__Transaction__state_vector, self)
+
+Transaction$encode_diff_v1 <- function(state_vector) .Call(wrap__Transaction__encode_diff_v1, self, state_vector)
+
+Transaction$encode_diff_v2 <- function(state_vector) .Call(wrap__Transaction__encode_diff_v2, self, state_vector)
+
+Transaction$apply_update_v1 <- function(data) .Call(wrap__Transaction__apply_update_v1, self, data)
+
+Transaction$apply_update_v2 <- function(data) .Call(wrap__Transaction__apply_update_v2, self, data)
+
+#' @export
+`$.Transaction` <- function (self, name) { func <- Transaction[[name]]; environment(func) <- environment(); func }
+
+#' @export
+`[[.Transaction` <- `$.Transaction`
+
 ArrayRef <- new.env(parent = emptyenv())
 
 ArrayRef$len <- function(transaction) .Call(wrap__ArrayRef__len, self, transaction)
@@ -26,26 +50,6 @@ ArrayRef$remove <- function(transaction, index) .Call(wrap__ArrayRef__remove, se
 
 #' @export
 `[[.ArrayRef` <- `$.ArrayRef`
-
-Doc <- new.env(parent = emptyenv())
-
-Doc$new <- function() .Call(wrap__Doc__new)
-
-Doc$client_id <- function() .Call(wrap__Doc__client_id, self)
-
-Doc$guid <- function() .Call(wrap__Doc__guid, self)
-
-Doc$get_or_insert_text <- function(name) .Call(wrap__Doc__get_or_insert_text, self, name)
-
-Doc$get_or_insert_map <- function(name) .Call(wrap__Doc__get_or_insert_map, self, name)
-
-Doc$get_or_insert_array <- function(name) .Call(wrap__Doc__get_or_insert_array, self, name)
-
-#' @export
-`$.Doc` <- function (self, name) { func <- Doc[[name]]; environment(func) <- environment(); func }
-
-#' @export
-`[[.Doc` <- `$.Doc`
 
 MapRef <- new.env(parent = emptyenv())
 
@@ -113,30 +117,6 @@ TextRef$get_string <- function(transaction) .Call(wrap__TextRef__get_string, sel
 #' @export
 `[[.TextRef` <- `$.TextRef`
 
-Transaction <- new.env(parent = emptyenv())
-
-Transaction$new <- function(doc, mutable = FALSE) .Call(wrap__Transaction__new, doc, mutable)
-
-Transaction$commit <- function() .Call(wrap__Transaction__commit, self)
-
-Transaction$drop <- function() .Call(wrap__Transaction__drop, self)
-
-Transaction$state_vector <- function() .Call(wrap__Transaction__state_vector, self)
-
-Transaction$encode_diff_v1 <- function(state_vector) .Call(wrap__Transaction__encode_diff_v1, self, state_vector)
-
-Transaction$encode_diff_v2 <- function(state_vector) .Call(wrap__Transaction__encode_diff_v2, self, state_vector)
-
-Transaction$apply_update_v1 <- function(data) .Call(wrap__Transaction__apply_update_v1, self, data)
-
-Transaction$apply_update_v2 <- function(data) .Call(wrap__Transaction__apply_update_v2, self, data)
-
-#' @export
-`$.Transaction` <- function (self, name) { func <- Transaction[[name]]; environment(func) <- environment(); func }
-
-#' @export
-`[[.Transaction` <- `$.Transaction`
-
 Update <- new.env(parent = emptyenv())
 
 Update$decode_v1 <- function(data) .Call(wrap__Update__decode_v1, data)
@@ -162,5 +142,25 @@ Update$state_vector_lower <- function() .Call(wrap__Update__state_vector_lower, 
 
 #' @export
 `[[.Update` <- `$.Update`
+
+Doc <- new.env(parent = emptyenv())
+
+Doc$new <- function() .Call(wrap__Doc__new)
+
+Doc$client_id <- function() .Call(wrap__Doc__client_id, self)
+
+Doc$guid <- function() .Call(wrap__Doc__guid, self)
+
+Doc$get_or_insert_text <- function(name) .Call(wrap__Doc__get_or_insert_text, self, name)
+
+Doc$get_or_insert_map <- function(name) .Call(wrap__Doc__get_or_insert_map, self, name)
+
+Doc$get_or_insert_array <- function(name) .Call(wrap__Doc__get_or_insert_array, self, name)
+
+#' @export
+`$.Doc` <- function (self, name) { func <- Doc[[name]]; environment(func) <- environment(); func }
+
+#' @export
+`[[.Doc` <- `$.Doc`
 
 # nolint end

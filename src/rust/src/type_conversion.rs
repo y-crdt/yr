@@ -1,6 +1,6 @@
 use extendr_api::prelude::*;
 
-pub(crate) trait IntoExtendr<T> {
+pub trait IntoExtendr<T> {
     fn extendr(self) -> extendr_api::Result<T>;
 }
 
@@ -73,7 +73,7 @@ impl IntoExtendr<Robj> for yrs::Out {
     }
 }
 
-pub(crate) trait FromExtendr<T>: Sized {
+pub trait FromExtendr<T>: Sized {
     fn from_extendr(value: T) -> extendr_api::Result<Self>;
 }
 
