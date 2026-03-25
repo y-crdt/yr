@@ -67,6 +67,10 @@ MapRef$insert_map <- function(transaction, key) .Call(wrap__MapRef__insert_map, 
 
 MapRef$get <- function(transaction, key) .Call(wrap__MapRef__get, self, transaction, key)
 
+MapRef$keys <- function(transaction) .Call(wrap__MapRef__keys, self, transaction)
+
+MapRef$items <- function(transaction) .Call(wrap__MapRef__items, self, transaction)
+
 MapRef$remove <- function(transaction, key) .Call(wrap__MapRef__remove, self, transaction, key)
 
 MapRef$clear <- function(transaction) .Call(wrap__MapRef__clear, self, transaction)

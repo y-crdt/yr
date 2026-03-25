@@ -71,6 +71,25 @@ impl MapRef {
         try_read!(transaction, t => self.0.get(t, key).extendr()).and_then(|r| r)
     }
 
+    pub fn keys(&self, transaction: &mut Transaction) -> Result<Strings, Error> {
+        try_read!(transaction, t => Strings::from_iter(self.0.keys(t)))
+    }
+
+    pub fn items(&self, transaction: &mut Transaction) -> Result<List, Error> {
+        try_read!(transaction, t => {
+            let n = self.0.len(t) as usize;
+            let mut keys = Strings::new(n);
+            let mut values = List::new(n);
+            for (i, (k, v)) in self.0.iter(t).enumerate() {
+                keys.set_elt(i, k.into());
+                values.set_elt(i, v.extendr()?)?;
+            }
+            values.set_names(keys.as_slice())?;
+            Ok::<List, Error>(values)
+        })
+        .and_then(|r| r)
+    }
+
     pub fn remove(&self, transaction: &mut Transaction, key: &str) -> Result<(), Error> {
         transaction.try_mut().map(|trans| {
             self.0.remove(trans, key);
