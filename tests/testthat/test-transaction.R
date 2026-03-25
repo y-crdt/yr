@@ -10,6 +10,8 @@ test_that("Multiple readonly transaction does not deadlock", {
 
   trans1 <- Transaction$lock(doc)
   trans2 <- Transaction$lock(doc)
+  expect_true(inherits(trans1, "Transaction"))
+  expect_true(inherits(trans2, "Transaction"))
   trans1$unlock()
   trans2$unlock()
 })

@@ -1,3 +1,10 @@
+# TODO work on not using empty update here
+
+test_that("Update print outputs Update(...)", {
+  update <- Update$new()
+  expect_invisible(print(update))
+})
+
 test_that("Update$new creates an empty Update", {
   update <- Update$new()
   expect_true(inherits(update, "Update"))

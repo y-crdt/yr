@@ -44,6 +44,10 @@ impl Doc {
     fn get_or_insert_array(&self, name: &str) -> ArrayRef {
         self.0.get_or_insert_array(name).into()
     }
+
+    fn to_string(&self) -> String {
+        self.0.to_string()
+    }
 }
 
 extendr_module! {

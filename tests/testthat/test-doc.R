@@ -21,6 +21,11 @@ test_that("two Docs have different guids", {
   expect_false(Doc$new()$guid() == Doc$new()$guid())
 })
 
+test_that("Doc print outputs Doc(id: ..., guid: ...)", {
+  doc <- Doc$new()
+  expect_output(print(doc), "^Doc\\(id: \\d+, guid: .+\\)$")
+})
+
 for (item in list(
   list(method = "get_or_insert_text",  class = "TextRef"),
   list(method = "get_or_insert_map",   class = "MapRef"),

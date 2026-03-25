@@ -13,3 +13,7 @@ Config/rextendr/version: 0.4.2.9000
 SystemRequirements: Cargo (Rust's package manager), rustc >= 1.65.0, xz
 Depends:
     R (>= 4.2)
+Collate:
+    'extendr-wrappers.R'
+    'doc.R'
+    'update.R'

@@ -51,6 +51,10 @@ impl Update {
     pub fn state_vector_lower(&self) -> StateVector {
         self.0.state_vector_lower().into()
     }
+
+    pub fn to_string(&self) -> String {
+        self.0.to_string()
+    }
 }
 
 extendr_module! {

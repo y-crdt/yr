@@ -141,6 +141,8 @@ Update$state_vector <- function() .Call(wrap__Update__state_vector, self)
 
 Update$state_vector_lower <- function() .Call(wrap__Update__state_vector_lower, self)
 
+Update$to_string <- function() .Call(wrap__Update__to_string, self)
+
 #' @export
 `$.Update` <- function (self, name) { func <- Update[[name]]; environment(func) <- environment(); func }
 
@@ -160,6 +162,8 @@ Doc$get_or_insert_text <- function(name) .Call(wrap__Doc__get_or_insert_text, se
 Doc$get_or_insert_map <- function(name) .Call(wrap__Doc__get_or_insert_map, self, name)
 
 Doc$get_or_insert_array <- function(name) .Call(wrap__Doc__get_or_insert_array, self, name)
+
+Doc$to_string <- function() .Call(wrap__Doc__to_string, self)
 
 #' @export
 `$.Doc` <- function (self, name) { func <- Doc[[name]]; environment(func) <- environment(); func }
