@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -12,7 +12,7 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.33.0
+    rev: 0.37.1
     hooks:
       - id: check-github-workflows
   - repo: local
@@ -26,6 +26,12 @@ repos:
         entry: pixi run fmt-cargo --
         language: system
         types_or: [rust]
+      - id: pixi-format-air
+        name: "Run air format through pixi"
+        entry: pixi run fmt-air
+        language: system
+        types_or: [r]
+        pass_filenames: false
       - id: pixi-format-tombi
         name: "Run tombi format through pixi"
         entry: pixi run fmt-tombi --stdin-filename

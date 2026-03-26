@@ -30,11 +30,10 @@ RUSTFLAGS = "-C link-arg=-Wl,-rpath,$CONDA_PREFIX/lib/R/lib"
 
 [feature.build.tasks.build-lib]
 description = "Compile Rust code into a library"
-cwd = "src"
 # Set target dir so that it does not conflict with the one from R
 cmd = """
 cargo build \
-    --manifest-path=rust/Cargo.toml \
+    --manifest-path=src/rust/Cargo.toml \
     --target-dir=$PIXI_PROJECT_ROOT/target/build \
     --lib
 """
@@ -43,7 +42,12 @@ outputs = ["target/build/**/*"]
 
 [feature.build.tasks.build-wrappers]
 description = "Generate R/extendr-wrappers.R from Rust #[extendr] macros"
-cmd = "cargo run --manifest-path=rust/Cargo.toml --bin document"
+cmd = """
+cargo --locked run \
+    --manifest-path=rust/Cargo.toml \
+    --target-dir=$PIXI_PROJECT_ROOT/target/build \
+    --bin document \
+"""
 cwd = "src"
 inputs = ["src/rust/src/**/*.rs", "src/rust/Cargo.toml"]
 outputs = ["R/extendr-wrappers.R"]
@@ -70,12 +74,11 @@ depends-on = ["build-namespace"]
 
 [feature.test.tasks.test-cargo]
 description = "Run Rust unit tests"
-cwd = "src"
 cmd = """
 cargo --locked test \
-    --workspace \
-    --manifest-path=rust/Cargo.toml \
+    --manifest-path=src/rust/Cargo.toml \
     --target-dir=$PIXI_PROJECT_ROOT/target/build \
+    --workspace \
 """
 
 # Code quality checks
@@ -83,16 +86,24 @@ cargo --locked test \
 [feature.check.dependencies]
 pre-commit = ">=3.7.1"
 tombi = ">=0.9.2"
+air = ">=0.8.2"
 typos = "*"
 
 [feature.check.tasks]
 # Formatters
 fmt-cargo = "cargo fmt --manifest-path=src/rust/Cargo.toml"
+fmt-air = "air format R/ tests/"
 fmt-tombi = "tombi format"
-fmt = { depends-on = ["fmt-tombi", "fmt-cargo"] }
+fmt = { depends-on = ["fmt-cargo", "fmt-air", "fmt-tombi"] }
 # Checkers
 check-typos = "typos --write-changes"
-check-cargo = "cargo check --manifest-path=src/rust/Cargo.toml --all-targets --workspace"
+check-cargo = """
+cargo --locked check \
+    --manifest-path=src/rust/Cargo.toml \
+    --target-dir=$PIXI_PROJECT_ROOT/target/build \
+    --all-targets \
+    --workspace \
+"""
 check-clippy = { cmd = "cargo --locked clippy --manifest-path=src/rust/Cargo.toml --fix --allow-staged", env = { RUSTFLAGS = "-Dwarnings", CARGO_TARGET_DIR = "$PIXI_PROJECT_ROOT/target/clippy" } }
 check = { depends-on = ["check-cargo", "check-clippy", "check-typos"] }
 # Pre-commit easy alias
