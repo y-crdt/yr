@@ -33,12 +33,14 @@ impl TextRef {
         chunk: &str,
     ) -> Result<(), Error> {
         transaction
-            .try_mut()
+            .try_write_mut()
             .map(|trans| self.0.insert(trans, index, chunk))
     }
 
     pub fn push(&self, transaction: &mut Transaction, chunk: &str) -> Result<(), Error> {
-        transaction.try_mut().map(|trans| self.0.push(trans, chunk))
+        transaction
+            .try_write_mut()
+            .map(|trans| self.0.push(trans, chunk))
     }
 
     pub fn remove_range(
@@ -48,7 +50,7 @@ impl TextRef {
         len: u32,
     ) -> Result<(), Error> {
         transaction
-            .try_mut()
+            .try_write_mut()
             .map(|trans| self.0.remove_range(trans, index, len))
     }
 

@@ -39,7 +39,7 @@ impl MapRef {
         key: &str,
         obj: Robj,
     ) -> Result<(), Error> {
-        let trans = transaction.try_mut()?;
+        let trans = transaction.try_write_mut()?;
         let any = yrs::Any::from_extendr(obj)?;
         self.0.insert(trans, key, any);
         Ok(())
@@ -47,7 +47,7 @@ impl MapRef {
 
     pub fn insert_text(&self, transaction: &mut Transaction, key: &str) -> Result<TextRef, Error> {
         transaction
-            .try_mut()
+            .try_write_mut()
             .map(|trans| TextRef::from(self.0.insert(trans, key, YTextPrelim::default())))
     }
 
@@ -57,13 +57,13 @@ impl MapRef {
         key: &str,
     ) -> Result<ArrayRef, Error> {
         transaction
-            .try_mut()
+            .try_write_mut()
             .map(|trans| ArrayRef::from(self.0.insert(trans, key, YArrayPrelim::default())))
     }
 
     pub fn insert_map(&self, transaction: &mut Transaction, key: &str) -> Result<MapRef, Error> {
         transaction
-            .try_mut()
+            .try_write_mut()
             .map(|trans| MapRef::from(self.0.insert(trans, key, YMapPrelim::default())))
     }
 
@@ -91,13 +91,13 @@ impl MapRef {
     }
 
     pub fn remove(&self, transaction: &mut Transaction, key: &str) -> Result<(), Error> {
-        transaction.try_mut().map(|trans| {
+        transaction.try_write_mut().map(|trans| {
             self.0.remove(trans, key);
         })
     }
 
     pub fn clear(&self, transaction: &mut Transaction) -> Result<(), Error> {
-        transaction.try_mut().map(|trans| self.0.clear(trans))
+        transaction.try_write_mut().map(|trans| self.0.clear(trans))
     }
 }
 

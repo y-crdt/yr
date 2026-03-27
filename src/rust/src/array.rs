@@ -33,7 +33,7 @@ impl ArrayRef {
         index: u32,
         obj: Robj,
     ) -> Result<(), Error> {
-        let trans = transaction.try_mut()?;
+        let trans = transaction.try_write_mut()?;
         let any = yrs::Any::from_extendr(obj)?;
         self.0.insert(trans, index, any);
         Ok(())
@@ -41,7 +41,7 @@ impl ArrayRef {
 
     pub fn insert_text(&self, transaction: &mut Transaction, index: u32) -> Result<TextRef, Error> {
         transaction
-            .try_mut()
+            .try_write_mut()
             .map(|trans| TextRef::from(self.0.insert(trans, index, YTextPrelim::default())))
     }
 
@@ -51,13 +51,13 @@ impl ArrayRef {
         index: u32,
     ) -> Result<ArrayRef, Error> {
         transaction
-            .try_mut()
+            .try_write_mut()
             .map(|trans| ArrayRef::from(self.0.insert(trans, index, ArrayPrelim::default())))
     }
 
     pub fn insert_map(&self, transaction: &mut Transaction, index: u32) -> Result<MapRef, Error> {
         transaction
-            .try_mut()
+            .try_write_mut()
             .map(|trans| MapRef::from(self.0.insert(trans, index, YMapPrelim::default())))
     }
 
@@ -66,7 +66,7 @@ impl ArrayRef {
     }
 
     pub fn remove(&self, transaction: &mut Transaction, index: u32) -> Result<(), Error> {
-        transaction.try_mut().map(|trans| {
+        transaction.try_write_mut().map(|trans| {
             self.0.remove(trans, index);
         })
     }

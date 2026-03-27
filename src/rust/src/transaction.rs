@@ -9,6 +9,7 @@ macro_rules! try_read {
     ($txn:expr, $t:ident => $body:expr) => {
         $txn.try_dyn().map(|txn| match txn {
             crate::transaction::DynTransaction::Write($t) => $body,
+            &crate::transaction::DynTransaction::WriteRef($t) => $body,
             crate::transaction::DynTransaction::Read($t) => $body,
         })
     };
@@ -22,8 +23,11 @@ pub(crate) use try_read;
 pub enum DynTransaction<'doc> {
     Read(yrs::Transaction<'doc>),
     Write(yrs::TransactionMut<'doc>),
+    WriteRef(&'doc yrs::TransactionMut<'doc>),
 }
 
+// TODO this is unsound: the lifetime is still accessible from safe code.
+// Either move to raw pointer + unsafe, or consider using yoke crate for this purpose.
 #[extendr]
 pub struct Transaction {
     // Transaction auto commits on Drop, and keeps a lock onto the Doc.
@@ -43,6 +47,18 @@ impl Drop for Transaction {
 }
 
 impl Transaction {
+    pub(crate) fn from_ref(transaction: &yrs::TransactionMut<'_>) -> Self {
+        let transaction = DynTransaction::WriteRef(transaction);
+        // TODO Safety: None, unlock must be called while the original ref is valid
+        let transaction = unsafe {
+            std::mem::transmute::<DynTransaction<'_>, DynTransaction<'static>>(transaction)
+        };
+        Transaction {
+            owner: Default::default(),
+            transaction: std::mem::ManuallyDrop::new(Some(transaction)),
+        }
+    }
+
     pub(crate) fn try_dyn(&self) -> Result<&DynTransaction<'static>, Error> {
         match &*self.transaction {
             Some(trans) => Ok(trans),
@@ -50,11 +66,11 @@ impl Transaction {
         }
     }
 
-    pub(crate) fn try_mut(&mut self) -> Result<&mut yrs::TransactionMut<'static>, Error> {
-        use DynTransaction::{Read, Write};
+    pub(crate) fn try_write_mut(&mut self) -> Result<&mut yrs::TransactionMut<'static>, Error> {
+        use DynTransaction::*;
         match &mut *self.transaction {
             Some(Write(trans)) => Ok(trans),
-            Some(Read(_)) => Err(Error::Other("Transaction is readonly".into())),
+            Some(WriteRef(_) | Read(_)) => Err(Error::Other("Transaction is readonly".into())),
             None => Err(Error::Other("Transaction was dropped".into())),
         }
     }
@@ -88,17 +104,18 @@ impl Transaction {
     }
 
     pub fn origin(&self) -> Result<Robj, Error> {
+        use DynTransaction::*;
         match self.try_dyn()? {
-            DynTransaction::Write(trans) => match trans.origin() {
+            Write(trans) | &WriteRef(trans) => match trans.origin() {
                 Some(o) => Ok(Origin(o.clone()).into()),
                 None => Ok(r!(NULL)),
             },
-            DynTransaction::Read(_) => Ok(r!(NULL)),
+            Read(_) => Ok(r!(NULL)),
         }
     }
 
     pub fn commit(&mut self) -> Result<(), Error> {
-        self.try_mut().map(|trans| trans.commit())
+        self.try_write_mut().map(|trans| trans.commit())
     }
 
     pub fn unlock(&mut self) {
@@ -118,13 +135,13 @@ impl Transaction {
     }
 
     pub fn apply_update_v1(&mut self, data: &[u8]) -> Result<(), Error> {
-        let trans = self.try_mut()?;
+        let trans = self.try_write_mut()?;
         let update = yrs::Update::decode_v1(data).extendr()?;
         trans.apply_update(update).extendr()
     }
 
     pub fn apply_update_v2(&mut self, data: &[u8]) -> Result<(), Error> {
-        let trans = self.try_mut()?;
+        let trans = self.try_write_mut()?;
         let update = yrs::Update::decode_v2(data).extendr()?;
         trans.apply_update(update).extendr()
     }
