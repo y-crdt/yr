@@ -2,6 +2,7 @@ pub mod array;
 pub mod doc;
 pub mod event;
 pub mod map;
+pub mod message;
 pub mod state;
 pub mod text;
 pub mod transaction;
@@ -23,6 +24,7 @@ extendr_api::extendr_module! {
     use transaction;
     use array;
     use map;
+    use message;
     use state;
     use text;
     use update;

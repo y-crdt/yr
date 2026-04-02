@@ -145,6 +145,34 @@ MapEvent$path <- function() .Call(wrap__MapEvent__path, self)
 #' @export
 `[[.MapEvent` <- `$.MapEvent`
 
+SyncMessage <- new.env(parent = emptyenv())
+
+SyncMessage$new <- function(sync_step1 = NULL, sync_step2 = NULL, update = NULL) .Call(wrap__SyncMessage__new, sync_step1, sync_step2, update)
+
+SyncMessage$from_sync_step1 <- function(state_vector) .Call(wrap__SyncMessage__from_sync_step1, state_vector)
+
+SyncMessage$from_sync_step2 <- function(data) .Call(wrap__SyncMessage__from_sync_step2, data)
+
+SyncMessage$from_update <- function(data) .Call(wrap__SyncMessage__from_update, data)
+
+SyncMessage$step <- function() .Call(wrap__SyncMessage__step, self)
+
+SyncMessage$is_sync_step1 <- function() .Call(wrap__SyncMessage__is_sync_step1, self)
+
+SyncMessage$is_sync_step2 <- function() .Call(wrap__SyncMessage__is_sync_step2, self)
+
+SyncMessage$is_update <- function() .Call(wrap__SyncMessage__is_update, self)
+
+SyncMessage$state_vector <- function() .Call(wrap__SyncMessage__state_vector, self)
+
+SyncMessage$data <- function() .Call(wrap__SyncMessage__data, self)
+
+#' @export
+`$.SyncMessage` <- function (self, name) { func <- SyncMessage[[name]]; environment(func) <- environment(); func }
+
+#' @export
+`[[.SyncMessage` <- `$.SyncMessage`
+
 StateVector <- new.env(parent = emptyenv())
 
 StateVector$decode_v1 <- function(data) .Call(wrap__StateVector__decode_v1, data)
