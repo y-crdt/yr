@@ -28,6 +28,30 @@ impl StateVector {
         self.0.contains_client(&client_id)
     }
 
+    fn equal(&self, other: &Self) -> bool {
+        self.0.eq(&other.0)
+    }
+
+    fn not_equal(&self, other: &Self) -> bool {
+        self.0.ne(&other.0)
+    }
+
+    fn less_than(&self, other: &Self) -> bool {
+        self.0.lt(&other.0)
+    }
+
+    fn less_than_equal(&self, other: &Self) -> bool {
+        self.0.le(&other.0)
+    }
+
+    fn greater_than(&self, other: &Self) -> bool {
+        self.0.gt(&other.0)
+    }
+
+    fn greater_than_equal(&self, other: &Self) -> bool {
+        self.0.ge(&other.0)
+    }
+
     fn encode_v1(&self) -> Vec<u8> {
         self.0.encode_v1()
     }

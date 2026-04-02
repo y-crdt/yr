@@ -37,9 +37,15 @@ Origin$new <- function(data) .Call(wrap__Origin__new, data)
 
 Origin$equal <- function(other) .Call(wrap__Origin__equal, self, other)
 
+Origin$not_equal <- function(other) .Call(wrap__Origin__not_equal, self, other)
+
 Origin$less_than <- function(other) .Call(wrap__Origin__less_than, self, other)
 
 Origin$less_than_equal <- function(other) .Call(wrap__Origin__less_than_equal, self, other)
+
+Origin$greater_than <- function(other) .Call(wrap__Origin__greater_than, self, other)
+
+Origin$greater_than_equal <- function(other) .Call(wrap__Origin__greater_than_equal, self, other)
 
 Origin$to_string <- function() .Call(wrap__Origin__to_string, self)
 
@@ -159,6 +165,10 @@ SyncMessage$from_sync_step2 <- function(data) .Call(wrap__SyncMessage__from_sync
 
 SyncMessage$from_update <- function(data) .Call(wrap__SyncMessage__from_update, data)
 
+SyncMessage$equal <- function(other) .Call(wrap__SyncMessage__equal, self, other)
+
+SyncMessage$not_equal <- function(other) .Call(wrap__SyncMessage__not_equal, self, other)
+
 SyncMessage$encode_v1 <- function() .Call(wrap__SyncMessage__encode_v1, self)
 
 SyncMessage$encode_v2 <- function() .Call(wrap__SyncMessage__encode_v2, self)
@@ -192,6 +202,18 @@ StateVector$is_empty <- function() .Call(wrap__StateVector__is_empty, self)
 StateVector$len <- function() .Call(wrap__StateVector__len, self)
 
 StateVector$contains_client <- function(client_id) .Call(wrap__StateVector__contains_client, self, client_id)
+
+StateVector$equal <- function(other) .Call(wrap__StateVector__equal, self, other)
+
+StateVector$not_equal <- function(other) .Call(wrap__StateVector__not_equal, self, other)
+
+StateVector$less_than <- function(other) .Call(wrap__StateVector__less_than, self, other)
+
+StateVector$less_than_equal <- function(other) .Call(wrap__StateVector__less_than_equal, self, other)
+
+StateVector$greater_than <- function(other) .Call(wrap__StateVector__greater_than, self, other)
+
+StateVector$greater_than_equal <- function(other) .Call(wrap__StateVector__greater_than_equal, self, other)
 
 StateVector$encode_v1 <- function() .Call(wrap__StateVector__encode_v1, self)
 

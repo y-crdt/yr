@@ -184,15 +184,27 @@ impl Origin {
     }
 
     pub fn equal(&self, other: &Self) -> bool {
-        self.0 == other.0
+        self.0.eq(&other.0)
+    }
+
+    pub fn not_equal(&self, other: &Self) -> bool {
+        self.0.ne(&other.0)
     }
 
     pub fn less_than(&self, other: &Self) -> bool {
-        self.0 < other.0
+        self.0.lt(&other.0)
     }
 
     pub fn less_than_equal(&self, other: &Self) -> bool {
-        self.0 <= other.0
+        self.0.le(&other.0)
+    }
+
+    pub fn greater_than(&self, other: &Self) -> bool {
+        self.0.gt(&other.0)
+    }
+
+    pub fn greater_than_equal(&self, other: &Self) -> bool {
+        self.0.ge(&other.0)
     }
 
     pub fn to_string(&self) -> String {

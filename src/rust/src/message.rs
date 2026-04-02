@@ -51,6 +51,14 @@ impl SyncMessage {
         Ok(Self::from(YSyncMessage::Update(data.to_vec())))
     }
 
+    fn equal(&self, other: &Self) -> bool {
+        self.as_ref().eq(other.as_ref())
+    }
+
+    fn not_equal(&self, other: &Self) -> bool {
+        self.as_ref().ne(other.as_ref())
+    }
+
     fn encode_v1(&self) -> Vec<u8> {
         self.as_ref().encode_v1()
     }

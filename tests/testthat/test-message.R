@@ -101,6 +101,26 @@ test_that("SyncMessage two-peer sync via SyncStep1/SyncStep2", {
   })
 })
 
+test_that("SyncMessage equality", {
+  sv <- StateVector$decode_v1(as.raw(c(0x00)))
+  raw_data <- as.raw(c(0x01, 0x02, 0x03))
+
+  msg1a <- SyncMessage$new(sync_step1 = sv)
+  msg1b <- SyncMessage$new(sync_step1 = sv)
+  expect_true(msg1a == msg1b)
+  expect_false(msg1a != msg1b)
+
+  msg2 <- SyncMessage$new(sync_step2 = raw_data)
+  expect_false(msg1a == msg2)
+  expect_true(msg1a != msg2)
+
+  msg3a <- SyncMessage$new(update = raw_data)
+  msg3b <- SyncMessage$new(update = raw_data)
+  expect_true(msg3a == msg3b)
+  expect_false(msg3a != msg3b)
+  expect_false(msg2 == msg3a)
+})
+
 test_that("SyncMessage decode errors on invalid data", {
   expect_s3_class(SyncMessage$decode_v1(as.raw(c(0xff))), "extendr_error")
   expect_s3_class(SyncMessage$decode_v2(as.raw(c(0xff))), "extendr_error")

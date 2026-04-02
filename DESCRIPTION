@@ -18,6 +18,7 @@ Collate:
     'array.R'
     'doc.R'
     'map.R'
+    'message.R'
     'state.R'
     'text.R'
     'transaction.R'

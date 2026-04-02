@@ -35,3 +35,26 @@ for (version in c("v1", "v2")) {
     list(version = version)
   )
 }
+
+test_that("StateVector equality and ordering", {
+  doc <- Doc$new()
+  text <- doc$get_or_insert_text("t")
+
+  sv1 <- doc$with_transaction(function(txn) txn$state_vector())
+  sv2 <- doc$with_transaction(function(txn) txn$state_vector())
+  expect_true(sv1 == sv2)
+  expect_false(sv1 != sv2)
+  expect_true(sv1 <= sv1)
+  expect_true(sv1 >= sv1)
+
+  doc$with_transaction(function(txn) text$push(txn, "x"), mutable = TRUE)
+  sv3 <- doc$with_transaction(function(txn) txn$state_vector())
+  expect_false(sv1 == sv3)
+  expect_true(sv1 != sv3)
+  expect_true(sv1 < sv3)
+  expect_true(sv1 <= sv3)
+  expect_false(sv1 > sv3)
+  expect_false(sv1 >= sv3)
+  expect_true(sv3 > sv1)
+  expect_true(sv3 >= sv1)
+})

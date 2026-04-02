@@ -19,6 +19,11 @@ print.Origin <- function(self, ...) {
 }
 
 #' @export
+`!=.Origin` <- function(e1, e2) {
+  e1$not_equal(e2)
+}
+
+#' @export
 `<.Origin` <- function(e1, e2) {
   e1$less_than(e2)
 }
@@ -30,10 +35,10 @@ print.Origin <- function(self, ...) {
 
 #' @export
 `>.Origin` <- function(e1, e2) {
-  e2$less_than(e1)
+  e1$greater_than(e2)
 }
 
 #' @export
-`<=.Origin` <- function(e1, e2) {
-  e2$less_than_equal(e1)
+`>=.Origin` <- function(e1, e2) {
+  e1$greater_than_equal(e2)
 }
