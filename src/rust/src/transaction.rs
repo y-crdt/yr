@@ -119,6 +119,14 @@ impl Transaction {
         }
     }
 
+    pub fn is_mutable(&self) -> Result<bool, Error> {
+        use DynTransaction::*;
+        match self.try_get()? {
+            Write(_) | WriteRef(_) => Ok(true),
+            Read(_) => Ok(false),
+        }
+    }
+
     pub fn origin(&self) -> Result<Robj, Error> {
         use DynTransaction::*;
         match self.try_get()? {

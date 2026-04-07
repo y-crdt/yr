@@ -9,6 +9,8 @@ Transaction <- new.env(parent = emptyenv())
 
 Transaction$lock <- function(doc, mutable = FALSE, origin = NULL) .Call(wrap__Transaction__lock, doc, mutable, origin)
 
+Transaction$is_mutable <- function() .Call(wrap__Transaction__is_mutable, self)
+
 Transaction$origin <- function() .Call(wrap__Transaction__origin, self)
 
 Transaction$commit <- function() .Call(wrap__Transaction__commit, self)
