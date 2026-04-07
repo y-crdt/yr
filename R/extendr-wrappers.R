@@ -21,9 +21,15 @@ Transaction$encode_diff_v1 <- function(state_vector) .Call(wrap__Transaction__en
 
 Transaction$encode_diff_v2 <- function(state_vector) .Call(wrap__Transaction__encode_diff_v2, self, state_vector)
 
+Transaction$encode_state_as_update_v1 <- function(state_vector) .Call(wrap__Transaction__encode_state_as_update_v1, self, state_vector)
+
+Transaction$encode_state_as_update_v2 <- function(state_vector) .Call(wrap__Transaction__encode_state_as_update_v2, self, state_vector)
+
 Transaction$apply_update_v1 <- function(data) .Call(wrap__Transaction__apply_update_v1, self, data)
 
 Transaction$apply_update_v2 <- function(data) .Call(wrap__Transaction__apply_update_v2, self, data)
+
+Transaction$snapshot <- function() .Call(wrap__Transaction__snapshot, self)
 
 #' @export
 `$.Transaction` <- function (self, name) { func <- Transaction[[name]]; environment(func) <- environment(); func }

@@ -4,7 +4,7 @@ use yrs::{ReadTxn as YReadTxn, Transact as YTransact};
 
 use crate::type_conversion::IntoExtendr;
 use crate::utils;
-use crate::{Doc, StateVector};
+use crate::{Doc, Snapshot, StateVector};
 
 macro_rules! try_read {
     ($txn:expr, $t:ident => $body:expr) => {
@@ -150,6 +150,14 @@ impl Transaction {
         try_read!(self, t => t.encode_diff_v2(state_vector.as_ref()))
     }
 
+    pub fn encode_state_as_update_v1(&self, state_vector: &StateVector) -> Result<Vec<u8>, Error> {
+        try_read!(self, t => t.encode_state_as_update_v1(state_vector.as_ref()))
+    }
+
+    pub fn encode_state_as_update_v2(&self, state_vector: &StateVector) -> Result<Vec<u8>, Error> {
+        try_read!(self, t => t.encode_state_as_update_v2(state_vector.as_ref()))
+    }
+
     pub fn apply_update_v1(&mut self, data: &[u8]) -> Result<(), Error> {
         let trans = self.try_write_mut()?;
         let update = yrs::Update::decode_v1(data).extendr()?;
@@ -160,6 +168,10 @@ impl Transaction {
         let trans = self.try_write_mut()?;
         let update = yrs::Update::decode_v2(data).extendr()?;
         trans.apply_update(update).extendr()
+    }
+
+    pub fn snapshot(&self) -> Result<Snapshot, Error> {
+        try_read!(self, t => t.snapshot().into())
     }
 }
 

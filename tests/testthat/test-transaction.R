@@ -64,9 +64,9 @@ for (version in c("v1", "v2")) {
     {
       test_that(
         paste(
-          "Transaction encode_diff",
+          "Transaction encode_diff and encode_state_as_update",
           version,
-          "against current state vector returns empty update"
+          "against current state vector returns raw"
         ),
         {
           doc <- Doc$new()
@@ -80,6 +80,8 @@ for (version in c("v1", "v2")) {
               sv <- trans$state_vector()
               diff <- trans[[paste0("encode_diff_", version)]](sv)
               expect_true(is.raw(diff))
+              update <- trans[[paste0("encode_state_as_update_", version)]](sv)
+              expect_true(is.raw(update))
             },
             mutable = TRUE
           )

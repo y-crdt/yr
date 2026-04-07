@@ -2,17 +2,14 @@ use extendr_api::prelude::*;
 use yrs::updates::{decoder::Decode as YDecode, encoder::Encode as YEncode};
 
 use crate::type_conversion::IntoExtendr;
+use crate::utils;
 use crate::StateVector;
 
-#[extendr]
-#[derive(Default)]
-pub struct Update(yrs::Update);
-
-impl From<yrs::Update> for Update {
-    fn from(value: yrs::Update) -> Self {
-        Self(value)
-    }
-}
+utils::extendr_struct!(
+    #[extendr]
+    #[derive(Default)]
+    pub Update(yrs::Update)
+);
 
 #[extendr]
 impl Update {
