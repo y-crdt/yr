@@ -6,13 +6,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         # nolint start\n\
         \n\
         #' @usage NULL\n\
-        #' @useDynLib yar, .registration = TRUE\n\
+        #' @useDynLib ycrdt, .registration = TRUE\n\
         NULL\n\
         \n\
     ";
     let footer = "# nolint end\n";
-    let wrappers = yar::get_yar_metadata()
-        .make_r_wrappers(true, "yar")
+    let wrappers = r_ycrdt::get_ycrdt_metadata()
+        .make_r_wrappers(true, "ycrdt")
         .map_err(|e| format!("failed to generate wrappers: {e}"))?;
     std::fs::write(wrapper_path, format!("{header}{wrappers}{footer}"))
         .map_err(|e| format!("failed to write {wrapper_path}: {e}"))?;

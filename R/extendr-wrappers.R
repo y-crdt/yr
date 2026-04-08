@@ -2,7 +2,7 @@
 # nolint start
 
 #' @usage NULL
-#' @useDynLib yar, .registration = TRUE
+#' @useDynLib ycrdt, .registration = TRUE
 NULL
 
 Transaction <- new.env(parent = emptyenv())

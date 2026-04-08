@@ -1,7 +1,7 @@
 TARGET_DIR = ./rust/target
 LIBDIR = $(TARGET_DIR)/@LIBDIR@
-STATLIB = $(LIBDIR)/libyar.a
-PKG_LIBS = -L$(LIBDIR) -lyar
+STATLIB = $(LIBDIR)/libr_ycrdt.a
+PKG_LIBS = -L$(LIBDIR) -lr_ycrdt
 
 all: $(SHLIB) rust_clean
 
