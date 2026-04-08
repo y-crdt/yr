@@ -367,10 +367,28 @@ Doc$get_or_insert_array <- function(name) .Call(wrap__Doc__get_or_insert_array, 
 
 Doc$to_string <- function() .Call(wrap__Doc__to_string, self)
 
+Doc$observe_transaction_cleanup <- function(f, key) .Call(wrap__Doc__observe_transaction_cleanup, self, f, key)
+
+Doc$unobserve_transaction_cleanup <- function(key) .Call(wrap__Doc__unobserve_transaction_cleanup, self, key)
+
 #' @export
 `$.Doc` <- function (self, name) { func <- Doc[[name]]; environment(func) <- environment(); func }
 
 #' @export
 `[[.Doc` <- `$.Doc`
+
+TransactionCleanupEvent <- new.env(parent = emptyenv())
+
+TransactionCleanupEvent$before_state <- function() .Call(wrap__TransactionCleanupEvent__before_state, self)
+
+TransactionCleanupEvent$after_state <- function() .Call(wrap__TransactionCleanupEvent__after_state, self)
+
+TransactionCleanupEvent$delete_set <- function() .Call(wrap__TransactionCleanupEvent__delete_set, self)
+
+#' @export
+`$.TransactionCleanupEvent` <- function (self, name) { func <- TransactionCleanupEvent[[name]]; environment(func) <- environment(); func }
+
+#' @export
+`[[.TransactionCleanupEvent` <- `$.TransactionCleanupEvent`
 
 # nolint end

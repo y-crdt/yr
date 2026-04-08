@@ -1,8 +1,8 @@
 use extendr_api::prelude::*;
 use yrs::types::text::TextEvent as YTextEvent;
-use yrs::{GetString as YGetString, Text as YText};
+use yrs::{GetString as YGetString, Observable as _, Text as YText};
 
-use crate::event::ExtendrObservable;
+use crate::event;
 use crate::type_conversion::IntoExtendr;
 use crate::utils::{self, lifetime, ExtendrRef};
 use crate::{try_read, ExtendrTransaction, Transaction};
@@ -47,11 +47,13 @@ impl TextRef {
     }
 
     pub fn observe(&self, f: Function, key: &Robj) -> Result<(), Error> {
-        ExtendrObservable::<TextEvent>::observe(self, f, key)
+        event::observe_with!(self.as_ref(), observe_with, TextEvent, f, key);
+        Ok(())
     }
 
     pub fn unobserve(&self, key: &Robj) -> Result<(), Error> {
-        ExtendrObservable::<TextEvent>::unobserve(self, key)
+        event::unobserve_with!(self.as_ref(), unobserve, key);
+        Ok(())
     }
 }
 

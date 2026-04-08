@@ -1,10 +1,11 @@
 use extendr_api::prelude::*;
 use yrs::types::map::MapEvent as YMapEvent;
 use yrs::{
-    ArrayPrelim as YArrayPrelim, Map as YMap, MapPrelim as YMapPrelim, TextPrelim as YTextPrelim,
+    ArrayPrelim as YArrayPrelim, Map as YMap, MapPrelim as YMapPrelim, Observable as _,
+    TextPrelim as YTextPrelim,
 };
 
-use crate::event::ExtendrObservable;
+use crate::event;
 use crate::type_conversion::{FromExtendr, IntoExtendr};
 use crate::utils::{self, lifetime, ExtendrRef};
 use crate::{try_read, ArrayRef, ExtendrTransaction, TextRef, Transaction};
@@ -102,11 +103,13 @@ impl MapRef {
     }
 
     pub fn observe(&self, f: Function, key: &Robj) -> Result<(), Error> {
-        ExtendrObservable::<MapEvent>::observe(self, f, key)
+        event::observe_with!(self.as_ref(), observe_with, MapEvent, f, key);
+        Ok(())
     }
 
     pub fn unobserve(&self, key: &Robj) -> Result<(), Error> {
-        ExtendrObservable::<MapEvent>::unobserve(self, key)
+        event::unobserve_with!(self.as_ref(), unobserve, key);
+        Ok(())
     }
 }
 
