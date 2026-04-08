@@ -18,6 +18,8 @@ path = "document.rs"
 extendr-api = { git = "https://github.com/extendr/extendr", rev = "ca338c9", default-features = false, features = [
   "result_condition",
 ] }
+stable_deref_trait = "1.2.1"
+yoke = { version = "0.8.2", features = ["derive"] }
 yrs = "0.25.0"
 
 [dev-dependencies]

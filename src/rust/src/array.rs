@@ -21,16 +21,18 @@ impl ArrayRef {
         index: u32,
         obj: Robj,
     ) -> Result<(), Error> {
-        let trans = transaction.try_write_mut()?;
         let any = yrs::Any::from_extendr(obj)?;
-        self.0.insert(trans, index, any);
-        Ok(())
+        let array = self.0.clone(); // Cheap ptr copy
+        transaction.with_write_mut(move |trans| {
+            array.insert(trans, index, any);
+        })
     }
 
     pub fn insert_text(&self, transaction: &mut Transaction, index: u32) -> Result<TextRef, Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| TextRef::from(self.0.insert(trans, index, YTextPrelim::default())))
+        let array = self.0.clone(); // Cheap ptr copy
+        transaction.with_write_mut(move |trans| {
+            TextRef::from(array.insert(trans, index, YTextPrelim::default()))
+        })
     }
 
     pub fn insert_array(
@@ -38,15 +40,17 @@ impl ArrayRef {
         transaction: &mut Transaction,
         index: u32,
     ) -> Result<ArrayRef, Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| ArrayRef::from(self.0.insert(trans, index, ArrayPrelim::default())))
+        let array = self.0.clone(); // Cheap ptr copy
+        transaction.with_write_mut(move |trans| {
+            ArrayRef::from(array.insert(trans, index, ArrayPrelim::default()))
+        })
     }
 
     pub fn insert_map(&self, transaction: &mut Transaction, index: u32) -> Result<MapRef, Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| MapRef::from(self.0.insert(trans, index, YMapPrelim::default())))
+        let array = self.0.clone(); // Cheap ptr copy
+        transaction.with_write_mut(move |trans| {
+            MapRef::from(array.insert(trans, index, YMapPrelim::default()))
+        })
     }
 
     pub fn get(&self, transaction: &mut Transaction, index: u32) -> Result<Robj, Error> {
@@ -54,8 +58,9 @@ impl ArrayRef {
     }
 
     pub fn remove(&self, transaction: &mut Transaction, index: u32) -> Result<(), Error> {
-        transaction.try_write_mut().map(|trans| {
-            self.0.remove(trans, index);
+        let array = self.0.clone(); // Cheap ptr copy
+        transaction.with_write_mut(move |trans| {
+            array.remove(trans, index);
         })
     }
 

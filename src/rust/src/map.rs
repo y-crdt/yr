@@ -27,16 +27,20 @@ impl MapRef {
         key: &str,
         obj: Robj,
     ) -> Result<(), Error> {
-        let trans = transaction.try_write_mut()?;
         let any = yrs::Any::from_extendr(obj)?;
-        self.0.insert(trans, key, any);
-        Ok(())
+        let map = self.0.clone(); // Cheap ptr copy
+        let key = key.to_string();
+        transaction.with_write_mut(move |trans| {
+            map.insert(trans, key, any);
+        })
     }
 
     pub fn insert_text(&self, transaction: &mut Transaction, key: &str) -> Result<TextRef, Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| TextRef::from(self.0.insert(trans, key, YTextPrelim::default())))
+        let map = self.0.clone(); // Cheap ptr copy
+        let key = key.to_string();
+        transaction.with_write_mut(move |trans| {
+            TextRef::from(map.insert(trans, key, YTextPrelim::default()))
+        })
     }
 
     pub fn insert_array(
@@ -44,15 +48,19 @@ impl MapRef {
         transaction: &mut Transaction,
         key: &str,
     ) -> Result<ArrayRef, Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| ArrayRef::from(self.0.insert(trans, key, YArrayPrelim::default())))
+        let map = self.0.clone(); // Cheap ptr copy
+        let key = key.to_string();
+        transaction.with_write_mut(move |trans| {
+            ArrayRef::from(map.insert(trans, key, YArrayPrelim::default()))
+        })
     }
 
     pub fn insert_map(&self, transaction: &mut Transaction, key: &str) -> Result<MapRef, Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| MapRef::from(self.0.insert(trans, key, YMapPrelim::default())))
+        let map = self.0.clone(); // Cheap ptr copy
+        let key = key.to_string();
+        transaction.with_write_mut(move |trans| {
+            MapRef::from(map.insert(trans, key, YMapPrelim::default()))
+        })
     }
 
     pub fn get(&self, transaction: &mut Transaction, key: &str) -> Result<Robj, Error> {
@@ -81,13 +89,16 @@ impl MapRef {
     }
 
     pub fn remove(&self, transaction: &mut Transaction, key: &str) -> Result<(), Error> {
-        transaction.try_write_mut().map(|trans| {
-            self.0.remove(trans, key);
+        let map = self.0.clone(); // Cheap ptr copy
+        let key = key.to_string();
+        transaction.with_write_mut(move |trans| {
+            map.remove(trans, &key);
         })
     }
 
     pub fn clear(&self, transaction: &mut Transaction) -> Result<(), Error> {
-        transaction.try_write_mut().map(|trans| self.0.clear(trans))
+        let map = self.0.clone(); // Cheap ptr copy
+        transaction.with_write_mut(move |trans| map.clear(trans))
     }
 
     pub fn observe(&self, f: Function, key: &Robj) -> Result<(), Error> {

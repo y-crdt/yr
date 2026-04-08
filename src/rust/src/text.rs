@@ -21,15 +21,15 @@ impl TextRef {
         index: u32,
         chunk: &str,
     ) -> Result<(), Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| self.0.insert(trans, index, chunk))
+        let text = self.0.clone(); // Cheap ptr copy
+        let chunk = chunk.to_string();
+        transaction.with_write_mut(move |trans| text.insert(trans, index, &chunk))
     }
 
     pub fn push(&self, transaction: &mut Transaction, chunk: &str) -> Result<(), Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| self.0.push(trans, chunk))
+        let text = self.0.clone(); // Cheap ptr copy
+        let chunk = chunk.to_string();
+        transaction.with_write_mut(move |trans| text.push(trans, &chunk))
     }
 
     pub fn remove_range(
@@ -38,9 +38,8 @@ impl TextRef {
         index: u32,
         len: u32,
     ) -> Result<(), Error> {
-        transaction
-            .try_write_mut()
-            .map(|trans| self.0.remove_range(trans, index, len))
+        let text = self.0.clone(); // Cheap ptr copy
+        transaction.with_write_mut(move |trans| text.remove_range(trans, index, len))
     }
 
     pub fn get_string(&self, transaction: &Transaction) -> Result<String, Error> {
