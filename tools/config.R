@@ -42,7 +42,7 @@ webr_target <- "wasm32-unknown-emscripten"
 
 # Here we check if the platform we are building for is webr
 is_wasm <- identical(R.version$platform, webr_target)
-# Check wether the CARGO_BUILD_TARGET has been set (e.g. in cross compilation)
+# Check whether the CARGO_BUILD_TARGET has been set (e.g. in cross compilation)
 cargo_build_target <- Sys.getenv("CARGO_BUILD_TARGET")
 
 if (is_wasm) {
@@ -52,7 +52,7 @@ if (is_wasm) {
 
 # We have an explicit target
 if (nchar(cargo_build_target) > 0) {
-  # Add cargo target to exected subfolder output of cargo target dir
+  # Add cargo target to expected subfolder output of cargo target dir
   target_libpath <- cargo_build_target
   # Used this to replace @TARGET@
   .target <- paste0("--target=", cargo_build_target)
